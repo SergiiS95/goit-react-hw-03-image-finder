@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
-import { fetchImages } from './Services/Api';
+import { fetchImages } from '../Services/Api';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
@@ -11,7 +11,7 @@ export class App extends Component {
     images: [],
     currentSearchValue: '',
     page: 1,
-    totalPage: 0,
+    totalImages: 0,
     loading: false,
     error: null,
   };
@@ -30,6 +30,7 @@ export class App extends Component {
       currentSearchValue: query,
       images: [],
       page: 1,
+      totalImages: 0,
     });
   };
 
@@ -47,9 +48,8 @@ export class App extends Component {
       const imagesArray = this.normalizedImages(dataImages.hits);
       this.setState({
         images: [...this.state.images, ...imagesArray],
-        loading: false,
         error: '',
-        totalPage: Math.ceil(dataImages.totalHits / 12),
+        totalImages: dataImages.totalHits,
       });
     } catch (error) {
       this.setState({ error: 'Something went wrong!' });
@@ -70,14 +70,14 @@ export class App extends Component {
   };
 
   render() {
-    const { totalPage, page, images, loading } = this.state;
+    const { images, loading, totalImages } = this.state;
 
     return (
       <div>
         <Searchbar onSubmit={this.handleSubmit} />
         <ImageGallery images={images} />
         {loading && <Loader />}
-        {images.length > 0 && totalPage !== page && (
+        {!loading && images.length !== totalImages && (
           <Button onClick={this.loadMore} />
         )}
       </div>
